@@ -561,7 +561,97 @@ hr.dv{border:none;border-top:1px dashed var(--border);margin:12px 0;}
           </div>
         </div>
 
-        <button type="button" class="btn btn-gold btn-full" style="margin-top:12px" onclick="saveEntry()">✚ 결제 내역 저장</button>
+        <!-- ══ 시술권 구매 추가 (선택) ══ -->
+        <div id="addPkgSection" style="margin-top:10px;border:1.5px solid var(--pur-bd);border-radius:12px;overflow:hidden">
+          <button type="button" onclick="_togAddPkg()"
+            style="width:100%;display:flex;align-items:center;justify-content:space-between;
+                   padding:11px 15px;background:var(--pur-lt);border:none;cursor:pointer;
+                   font-family:'Noto Sans KR',sans-serif">
+            <span style="display:flex;align-items:center;gap:8px">
+              <span style="font-size:.95rem">🎟</span>
+              <span style="font-size:.84rem;font-weight:700;color:var(--pur)">시술권 구매도 함께 등록</span>
+              <span style="font-size:.72rem;color:var(--ash2);font-weight:400">선택사항</span>
+            </span>
+            <span id="addPkgArrow" style="color:var(--pur);font-size:.8rem;transition:.2s">＋</span>
+          </button>
+          <div id="addPkgBody" style="display:none;padding:13px 15px;background:#fff;border-top:1px solid var(--pur-bd)">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:9px">
+              <div class="fld" style="grid-column:1/-1">
+                <span class="lbl">시술명</span>
+                <div style="position:relative">
+                  <input type="text" id="inPkgProcSearch" class="ipt"
+                    placeholder="🔍 검색 또는 직접 입력"
+                    oninput="inPkgProcFilter(this.value)" autocomplete="off">
+                  <div id="inPkgProcDrop" style="display:none;position:absolute;top:100%;left:0;right:0;
+                    background:#fff;border:1.5px solid var(--pur-bd);border-radius:9px;z-index:600;
+                    max-height:150px;overflow-y:auto;box-shadow:0 4px 16px rgba(0,0,0,.12);margin-top:2px"></div>
+                </div>
+              </div>
+              <div class="fld">
+                <span class="lbl">총 회차</span>
+                <input type="number" id="inPkgTotal" class="ipt" placeholder="10" min="1"
+                  style="border-color:var(--pur-bd)" oninput="inPkgCalcUnit()">
+              </div>
+              <div class="fld">
+                <span class="lbl">금액</span>
+                <div class="money">
+                  <input type="text" id="inPkgPrice" class="money-ipt"
+                    style="border-color:var(--pur-bd);color:var(--pur)"
+                    placeholder="0" inputmode="numeric"
+                    oninput="onMoneyInput(this);inPkgCalcUnit()" onblur="onMoneyBlur(this)">
+                  <span class="money-unit" style="color:var(--pur)">원</span>
+                </div>
+              </div>
+            </div>
+            <div id="inPkgUnit" style="text-align:right;font-size:.72rem;color:var(--pur);font-weight:600;margin-bottom:6px;min-height:14px"></div>
+            <div style="font-size:.72rem;color:var(--ash2);background:var(--pur-lt);border-radius:7px;padding:7px 10px">
+              💡 저장 시 시술권이 함께 등록되고 결제 내역에 자동 추가됩니다
+            </div>
+          </div>
+        </div>
+
+        <!-- ══ 적립금 충전 추가 (선택) ══ -->
+        <div id="addPtSection" style="margin-top:8px;border:1.5px solid var(--grn-bd);border-radius:12px;overflow:hidden">
+          <button type="button" onclick="_togAddPt()"
+            style="width:100%;display:flex;align-items:center;justify-content:space-between;
+                   padding:11px 15px;background:var(--grn-lt);border:none;cursor:pointer;
+                   font-family:'Noto Sans KR',sans-serif">
+            <span style="display:flex;align-items:center;gap:8px">
+              <span style="font-size:.95rem">💰</span>
+              <span style="font-size:.84rem;font-weight:700;color:var(--grn)">적립금 충전도 함께 등록</span>
+              <span style="font-size:.72rem;color:var(--ash2);font-weight:400">선택사항</span>
+            </span>
+            <span id="addPtArrow" style="color:var(--grn);font-size:.8rem;transition:.2s">＋</span>
+          </button>
+          <div id="addPtBody" style="display:none;padding:13px 15px;background:#fff;border-top:1px solid var(--grn-bd)">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:9px">
+              <div class="fld">
+                <span class="lbl">납입금액</span>
+                <div class="money">
+                  <input type="text" id="inPtPaid" class="money-ipt" placeholder="0" inputmode="numeric"
+                    oninput="onMoneyInput(this);inPtBonus()" onblur="onMoneyBlur(this)">
+                  <span class="money-unit">원</span>
+                </div>
+              </div>
+              <div class="fld">
+                <span class="lbl">지급 적립금</span>
+                <div class="money">
+                  <input type="text" id="inPtGiven" class="money-ipt"
+                    style="border-color:var(--grn-bd);color:var(--grn)"
+                    placeholder="0" inputmode="numeric"
+                    oninput="onMoneyInput(this);inPtBonus()" onblur="onMoneyBlur(this)">
+                  <span class="money-unit" style="color:var(--grn)">원</span>
+                </div>
+              </div>
+            </div>
+            <div id="inPtBonus" style="text-align:right;font-size:.73rem;color:var(--grn);font-weight:600;margin-bottom:6px;min-height:14px"></div>
+            <div style="font-size:.72rem;color:var(--ash2);background:var(--grn-lt);border-radius:7px;padding:7px 10px">
+              💡 저장 시 적립금 충전이 함께 등록됩니다 (서비스 적립은 납입금액 0 입력)
+            </div>
+          </div>
+        </div>
+
+        <button type="button" class="btn btn-gold btn-full" style="margin-top:12px;font-size:.9rem;padding:13px" onclick="saveEntry()">✚ 결제 내역 저장</button>
       </div>
 
       <!-- 결제 내역 테이블 -->
@@ -1384,6 +1474,147 @@ function updateKPI(){
 }
 
 
+
+/* ══ 결제 입력 탭: 시술권+적립금 함께 등록 ══ */
+var _addPkgOpen=false, _addPtOpen=false;
+
+function _togAddPkg(){
+  _addPkgOpen=!_addPkgOpen;
+  var body=document.getElementById('addPkgBody');
+  var arrow=document.getElementById('addPkgArrow');
+  if(body)body.style.display=_addPkgOpen?'block':'none';
+  if(arrow)arrow.textContent=_addPkgOpen?'－':'＋';
+  if(_addPkgOpen){
+    /* 시술 검색 초기화 */
+    var s=document.getElementById('inPkgProcSearch');if(s)s.value='';
+    inPkgProcFilter('');
+    setTimeout(function(){var el=document.getElementById('inPkgProcSearch');if(el)el.focus();},150);
+  }
+}
+function _togAddPt(){
+  _addPtOpen=!_addPtOpen;
+  var body=document.getElementById('addPtBody');
+  var arrow=document.getElementById('addPtArrow');
+  if(body)body.style.display=_addPtOpen?'block':'none';
+  if(arrow)arrow.textContent=_addPtOpen?'－':'＋';
+}
+
+/* 시술권 시술 검색 */
+function inPkgProcFilter(q){
+  var drop=document.getElementById('inPkgProcDrop');
+  var inp=document.getElementById('inPkgProcSearch');
+  if(!drop||!inp)return;
+  var ql=(q||'').toLowerCase();
+  var ps2=typeof procSubs!=='undefined'?procSubs:{};
+  var allProcs=[];
+  procs.forEach(function(p){
+    var subs=(ps2[p]||[]);
+    if(subs.length)subs.forEach(function(s){allProcs.push({name:s,parent:p});});
+    else allProcs.push({name:p,parent:null});
+  });
+  var hits=ql?allProcs.filter(function(x){
+    return x.name.toLowerCase().indexOf(ql)>=0||(x.parent&&x.parent.toLowerCase().indexOf(ql)>=0);
+  }):allProcs.slice(0,40);
+  if(!hits.length){drop.style.display='none';return;}
+  drop.innerHTML='';
+  hits.forEach(function(h){
+    var btn=document.createElement('button');
+    btn.type='button';
+    btn.style.cssText='display:block;width:100%;text-align:left;padding:8px 12px;border:none;background:none;cursor:pointer;font-size:.8rem;font-family:\'Noto Sans KR\',sans-serif;color:var(--ink)';
+    btn.innerHTML=(h.parent?'<span style="font-size:.67rem;color:var(--ash2)">'+h.parent+' › </span>':'')+h.name;
+    btn.addEventListener('mouseenter',function(){btn.style.background='var(--pur-lt)';btn.style.color='var(--pur)';});
+    btn.addEventListener('mouseleave',function(){btn.style.background='none';btn.style.color='var(--ink)';});
+    btn.addEventListener('mousedown',function(e){e.preventDefault();});
+    btn.addEventListener('click',function(){inp.value=h.name;drop.style.display='none';inp.focus();});
+    drop.appendChild(btn);
+  });
+  drop.style.display='block';
+}
+
+/* 시술권 단가 계산 */
+function inPkgCalcUnit(){
+  var tot=parseInt(document.getElementById('inPkgTotal').value)||0;
+  var price=nParse(document.getElementById('inPkgPrice').value);
+  var el=document.getElementById('inPkgUnit');
+  if(el)el.textContent=(tot&&price)?'회당 '+nFmt(Math.round(price/tot))+'원':'';
+}
+
+/* 적립금 보너스 표시 */
+function inPtBonus(){
+  var paid=nParse(document.getElementById('inPtPaid').value||'0');
+  var given=nParse(document.getElementById('inPtGiven').value||'0');
+  var el=document.getElementById('inPtBonus');
+  if(!el)return;
+  if(given>paid&&given>0)el.textContent='보너스 +'+nFmt(given-paid)+'원';
+  else if(given>0&&given===paid)el.textContent='보너스 없음';
+  else el.textContent='';
+}
+
+/* 드롭다운 외부 클릭 닫기 등록 */
+function _initAddSectionDrops(){
+  document.addEventListener('click',function(e){
+    var drop=document.getElementById('inPkgProcDrop');
+    var inp=document.getElementById('inPkgProcSearch');
+    if(drop&&inp&&!drop.contains(e.target)&&e.target!==inp)drop.style.display='none';
+  });
+}
+
+/* ── saveEntry 에서 시술권+적립금 함께 처리 ──
+   saveEntry() 호출 전에 아래 함수로 추가 데이터 수집 후 저장 */
+function _collectAddSections(chart,name,manager,date){
+  var added=[];
+
+  /* 시술권 */
+  if(_addPkgOpen){
+    var proc=(document.getElementById('inPkgProcSearch').value||'').trim();
+    var tot=parseInt(document.getElementById('inPkgTotal').value)||0;
+    var price=nParse(document.getElementById('inPkgPrice').value||'0');
+    if(proc&&tot>0&&price>0){
+      var pkgId=Date.now();
+      pkgs.push({id:pkgId,date:date,chart:chart,name:name,manager:manager,
+        proc:proc,total:tot,price:price,memo:''});
+      sv(LS_PK,pkgs);
+      _addPkgEntry(pkgId,date,chart,name,manager,proc,tot,price);
+      added.push('시술권 등록 ✅');
+    }
+  }
+
+  /* 적립금 */
+  if(_addPtOpen){
+    var paid=nParse(document.getElementById('inPtPaid').value||'0');
+    var given=nParse(document.getElementById('inPtGiven').value||'0');
+    if(given>0){
+      var cid=Date.now()+2;
+      var procName2=paid>0?'적립금 충전':'서비스 적립';
+      ptLedger.push({id:cid,type:'charge',date:date,chart:chart,name:name,
+        manager:manager,paid:paid,given:given,memo:'결제와 함께 등록'});
+      sv(LS_PT,ptLedger);
+      if(paid>0){
+        entries.push({id:cid+1,date:date,chart:chart,name:name,manager:manager,
+          procedures:[{name:procName2,amount:paid}],
+          totalAmount:paid,isRefund:false,rfCategory:'',rfDetail:'',rfManager:'',
+          rfLinkedId:null,ptUsed:0,pkgId:null});
+        sv(LS_E,entries);
+      }
+      added.push('적립금 충전 ✅');
+    }
+  }
+  return added;
+}
+
+/* 섹션 초기화 */
+function _resetAddSections(){
+  ['inPkgProcSearch','inPkgTotal','inPkgPrice','inPtPaid','inPtGiven'].forEach(function(id){
+    var el=document.getElementById(id);if(el)el.value='';
+  });
+  var u=document.getElementById('inPkgUnit');if(u)u.textContent='';
+  var b=document.getElementById('inPtBonus');if(b)b.textContent='';
+  var drop=document.getElementById('inPkgProcDrop');if(drop)drop.style.display='none';
+  /* 접기 */
+  if(_addPkgOpen)_togAddPkg();
+  if(_addPtOpen)_togAddPt();
+}
+
 /* ══ 빠른 등록 (메인 화면 사이드바) ══ */
 function _qTab(tab){
   var tabs=['pkg','pt'];
@@ -1567,6 +1798,7 @@ function init(){
   // 저장된 GAS URL 복원
   try{var savedUrl=localStorage.getItem('meclinic_bp_gas_url');if(savedUrl)GAS_URL=savedUrl;}catch(e){}
   if(GAS_URL) setTimeout(gasLoad, 500);
+  _initAddSectionDrops();
   /* 빠른 등록 드롭다운 외부 클릭 닫기 */
   document.addEventListener('click',function(e){
     var drop=document.getElementById('qPkProcDrop');
@@ -2581,6 +2813,13 @@ function saveEntry(){
     if(pkgUseData.length)sv(LS_PU,pkUses);
   }
 
+  /* ── 시술권+적립금 함께 등록 처리 ── */
+  var _addChart=chart||document.getElementById('inChart').value.trim();
+  var _addName=name||document.getElementById('inName').value.trim();
+  var _addMgr=manager||document.getElementById('inMgr').value;
+  var _addDate=date||document.getElementById('inDate').value;
+  var _addExtras=_collectAddSections(_addChart,_addName,_addMgr,_addDate);
+
   /* ── 공통 리셋 ── */
   document.getElementById('inChart').value='';
   document.getElementById('inName').value='';
@@ -2608,7 +2847,10 @@ function saveEntry(){
   renderProcGrid();renderEntryRows();calcSum();
   renderEntTbl();renderRefund();renderPkgList();renderPkHist();renderPtList();renderPcHist();renderPcStats();updateKPI();gasSave();_renderGrpList();
   sideSearch();
-  _toast('저장되었습니다! ✅');
+  _resetAddSections();
+  var _toastMsg='저장되었습니다! ✅';
+  if(_addExtras&&_addExtras.length)_toastMsg+=' + '+_addExtras.join(' + ');
+  _toast(_toastMsg);
 }
 
 /* ─ 삭제/수정 핵심 ─ */
