@@ -300,6 +300,43 @@ hr.dv{border:none;border-top:1px dashed var(--border);margin:12px 0;}
 </head>
 <body>
 
+<!-- ══ 비밀번호 화면 ══ -->
+<div id="pwScreen" style="position:fixed;inset:0;background:#2a1f14;z-index:99999;display:flex;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:16px;padding:40px 36px;width:90%;max-width:360px;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,.4)">
+    <div style="font-size:1.1rem;font-weight:700;color:#3a2a1a;margin-bottom:6px"><em style="color:#9b6b3a">Me</em> Clinic 부평점</div>
+    <div style="font-size:.78rem;color:#888;margin-bottom:24px">매출분석 프로그램</div>
+    <input type="password" id="pwInput" placeholder="비밀번호 입력"
+      style="width:100%;padding:12px 14px;border:1.5px solid #e0d5c5;border-radius:10px;font-size:.95rem;box-sizing:border-box;text-align:center;outline:none;margin-bottom:10px"
+      onkeydown="if(event.key==='Enter')_checkPw()">
+    <div id="pwErr" style="color:#c0392b;font-size:.76rem;margin-bottom:10px;min-height:18px"></div>
+    <button onclick="_checkPw()"
+      style="width:100%;padding:12px;background:#9b6b3a;color:#fff;border:none;border-radius:10px;font-size:.9rem;font-weight:700;cursor:pointer">
+      입장하기
+    </button>
+  </div>
+</div>
+
+<script>
+(function(){
+  var PW = 'bp5541';
+  var KEY = 'meclinic_bp_auth';
+  if(localStorage.getItem(KEY) === PW){
+    document.getElementById('pwScreen').style.display='none';
+  }
+  window._checkPw = function(){
+    var v = document.getElementById('pwInput').value;
+    if(v === PW){
+      localStorage.setItem(KEY, PW);
+      document.getElementById('pwScreen').style.display='none';
+    } else {
+      document.getElementById('pwErr').textContent='비밀번호가 틀렸습니다';
+      document.getElementById('pwInput').value='';
+      document.getElementById('pwInput').focus();
+    }
+  };
+})();
+</script>
+
 <div class="hdr">
   <div class="brand">
     <span class="brand-name"><em>Me</em> Clinic <span style="font-size:.7em;font-weight:500;opacity:.8">부평점</span></span>
