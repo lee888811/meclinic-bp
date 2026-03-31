@@ -318,8 +318,8 @@ hr.dv{border:none;border-top:1px dashed var(--border);margin:12px 0;}
 
 <script>
 (function(){
-  var PW = 'bp5541';
-  var KEY = 'meclinic_bp_auth';
+  var PW = 'me72755';
+  var KEY = 'meclinic_bp_auth2';
   if(localStorage.getItem(KEY) === PW){
     document.getElementById('pwScreen').style.display='none';
   }
@@ -1915,12 +1915,20 @@ var ppOpen=false;
 function togPP(){ppOpen=!ppOpen;document.getElementById('procPanel').style.display=ppOpen?'block':'none';}
 function addProc(){
   var ip=document.getElementById('newProcIpt'),v=ip.value.trim();
-  if(!v)return;if(procs.indexOf(v)>=0){alert("이미 있습니다.");ip.value='';return;}
-  procs.push(v);sv(LS_P,procs);ip.value='';renderProcGrid();renderProcTags();syncProcSel();
+  if(!v)return;
+  if(procs.indexOf(v)>=0){_toast('"'+v+'" 은(는) 이미 있습니다.','err');ip.value='';return;}
+  procs.push(v);sv(LS_P,procs);ip.value='';
+  renderProcGrid();renderProcTags();syncProcSel();
+  /* 시술 선택 팝업 모달도 갱신 */
+  if(typeof _renderProcModalGrid==='function')_renderProcModalGrid('');
+  _toast('"'+v+'" 시술 추가 완료 ✅');
+  ip.focus();
 }
 function delProc(p){
   if(!confirm("'"+p+"' 삭제?"))return;
-  procs=procs.filter(function(x){return x!==p;});sv(LS_P,procs);renderProcGrid();renderProcTags();syncProcSel();
+  procs=procs.filter(function(x){return x!==p;});sv(LS_P,procs);
+  renderProcGrid();renderProcTags();syncProcSel();
+  if(typeof _renderProcModalGrid==='function')_renderProcModalGrid('');
 }
 function renderProcTags(){
   var ps2=typeof procSubs!=='undefined'?procSubs:{};var el=document.getElementById('procTagList');el.innerHTML='';
@@ -1930,7 +1938,43 @@ function renderProcTags(){
     var row=document.createElement('div');row.style.cssText='display:flex;align-items:center;gap:6px;margin-bottom:'+(subs.length?'7px':'0');
     var nm=document.createElement('span');nm.style.cssText='font-weight:700;font-size:.84rem;color:var(--ink);flex:1';nm.textContent=p;
     var addBtn=document.createElement('button');addBtn.textContent='+ 하위 시술';addBtn.style.cssText='font-size:.72rem;padding:3px 9px;border:1.5px dashed #d4b896;border-radius:5px;background:transparent;color:var(--gold-h);cursor:pointer;flex-shrink:0;font-family:inherit';
-    (function(pp){addBtn.addEventListener('click',function(){var sub=prompt('"'+pp+'" 하위 시술명 입력');if(!sub||!sub.trim())return;if(!procSubs[pp])procSubs[pp]=[];if(procSubs[pp].indexOf(sub.trim())<0)procSubs[pp].push(sub.trim());sv('mc_procSubs',procSubs);renderProcTags();renderProcGrid();_toast('"'+sub.trim()+'" 추가 ✅');});})(p);
+    (function(pp){
+  addBtn.addEventListener('click',function(){
+    /* 인라인 입력창으로 교체 */
+    var existing=wrap.querySelector('.sub-add-row');
+    if(existing){existing.querySelector('input').focus();return;}
+    var addRow=document.createElement('div');
+    addRow.className='sub-add-row';
+    addRow.style.cssText='display:flex;gap:6px;margin-top:7px;align-items:center';
+    var inp=document.createElement('input');
+    inp.className='ipt';
+    inp.style.cssText='flex:1;font-size:.78rem;padding:5px 9px';
+    inp.placeholder='하위 시술명 입력 후 Enter';
+    var saveBtn=document.createElement('button');
+    saveBtn.textContent='추가';
+    saveBtn.style.cssText='padding:5px 11px;background:var(--gold);color:#fff;border:none;border-radius:7px;cursor:pointer;font-size:.76rem;font-weight:700;font-family:inherit;flex-shrink:0';
+    var cancelBtn=document.createElement('button');
+    cancelBtn.textContent='취소';
+    cancelBtn.style.cssText='padding:5px 9px;background:none;border:1px solid var(--border2);border-radius:7px;cursor:pointer;font-size:.76rem;font-family:inherit;flex-shrink:0';
+    function doSave(){
+      var sub=inp.value.trim();
+      if(!sub)return;
+      if(!procSubs[pp])procSubs[pp]=[];
+      if(procSubs[pp].indexOf(sub)<0)procSubs[pp].push(sub);
+      sv('mc_procSubs',procSubs);
+      renderProcTags();renderProcGrid();
+      if(typeof _renderProcModalGrid==='function')_renderProcModalGrid('');
+      _toast('"'+sub+'" 추가 ✅');
+    }
+    inp.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();doSave();} if(e.key==='Escape')addRow.remove();});
+    saveBtn.addEventListener('click',doSave);
+    cancelBtn.addEventListener('click',function(){addRow.remove();});
+    addRow.appendChild(inp);addRow.appendChild(saveBtn);addRow.appendChild(cancelBtn);
+    wrap.appendChild(addRow);
+    setTimeout(function(){inp.focus();},80);
+  });
+})(p);
+
     var delBtn=document.createElement('button');delBtn.textContent='✕';delBtn.style.cssText='font-size:.8rem;padding:3px 8px;border:1px solid var(--red-bd);border-radius:5px;background:none;color:var(--red);cursor:pointer;flex-shrink:0;font-family:inherit';
     (function(ii){delBtn.addEventListener('click',function(e){e.stopPropagation();delProcByIdx(ii);});})(idx);
     row.appendChild(nm);row.appendChild(addBtn);row.appendChild(delBtn);wrap.appendChild(row);
@@ -2289,38 +2333,32 @@ function renderEntryRows(){
       /* 금액 입력 영역 */
       '<div style="padding:12px 14px">'+
         /* 서비스 토글 */
-        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">'+
-          '<div style="display:flex;align-items:center;gap:6px">'+
-            '<span style="font-size:.72rem;color:var(--ash);font-weight:600">공급가 (부가세 10% 자동계산)</span>'+
+        /* ── 공급가 (메인 입력) ── */
+        '<div style="margin-bottom:10px">'+
+          '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'+
+            '<span style="font-size:.78rem;font-weight:700;color:var(--ink)">금액 입력</span>'+
+            '<label style="display:flex;align-items:center;gap:5px;cursor:pointer;background:'+(isSvc?'#e8f5e9':'#f5f5f5')+';border-radius:20px;padding:4px 10px;border:1px solid '+(isSvc?'var(--grn-bd)':'var(--border)')+'">'+
+              '<input type="checkbox" class="entry-svc-chk" data-proc="'+pKey+'" '+(isSvc?'checked':'')+' onchange="onSvcToggle(this)" style="width:14px;height:14px;accent-color:#2d6a2d">'+
+              '<span style="font-size:.74rem;color:#2d6a2d;font-weight:600">서비스 (0원)</span>'+
+            '</label>'+
           '</div>'+
-          '<label style="display:flex;align-items:center;gap:5px;cursor:pointer;background:'+(isSvc?'#e8f5e9':'#f5f5f5')+';border-radius:20px;padding:4px 10px;border:1px solid '+(isSvc?'var(--grn-bd)':'var(--border)')+'">'+
-            '<input type="checkbox" class="entry-svc-chk" data-proc="'+pKey+'" '+(isSvc?'checked':'')+' onchange="onSvcToggle(this)" style="width:14px;height:14px;accent-color:#2d6a2d">'+
-            '<span style="font-size:.74rem;color:#2d6a2d;font-weight:600">서비스 (0원)</span>'+
-          '</label>'+
-        '</div>'+
-        /* 3칸: 공급가 / 부가세 / 합계 */
-        '<div style="display:grid;grid-template-columns:1fr auto 1fr;gap:6px;align-items:center">'+
-          /* 공급가 */
-          '<div>'+
-            '<div style="font-size:.65rem;color:var(--ash2);margin-bottom:3px;text-align:center">공급가</div>'+
-            '<input type="text" class="base-ipt" data-proc="'+pKey+'" placeholder="0" inputmode="numeric"'+
+          /* 공급가 - 크고 강조 */
+          '<div style="position:relative;margin-bottom:6px">'+
+            '<div style="font-size:.66rem;color:var(--ash);font-weight:600;margin-bottom:4px">공급가 <span style="color:var(--ash2);font-weight:400">(부가세 제외)</span></div>'+
+            '<input type="text" class="base-ipt" data-proc="'+pKey+'" placeholder="공급가 입력" inputmode="numeric"'+
             ' oninput="onBaseInput(this)" onblur="onBaseBlur(this)"'+
-            ' style="width:100%;text-align:right;padding:9px 10px;border:1.5px solid var(--border2);border-radius:9px;font-size:.88rem;font-weight:600;outline:none;background:var(--paper);color:var(--ink);font-variant-numeric:tabular-nums">'+
+            ' style="width:100%;text-align:right;padding:13px 42px 13px 14px;border:2px solid var(--border2);border-radius:10px;font-size:1.05rem;font-weight:700;outline:none;background:#fff;color:var(--ink);font-variant-numeric:tabular-nums;box-sizing:border-box">'+
+            '<span style="position:absolute;right:13px;bottom:14px;font-size:.75rem;color:var(--ash2);font-weight:600">원</span>'+
           '</div>'+
-          /* 화살표 */
-          '<div style="text-align:center;color:var(--ash2);font-size:.8rem;padding-top:14px">→</div>'+
-          /* 합계 */
-          '<div>'+
-            '<div style="font-size:.65rem;color:var(--ash2);margin-bottom:3px;text-align:center">합계 (부가세 포함)</div>'+
-            '<div style="position:relative">'+
-              '<input type="text" class="money-ipt" data-proc="'+pKey+'" placeholder="'+(isSvc?'서비스':'합계')+'" value="'+(v&&!isSvc?nFmt(v):'')+'\" inputmode="numeric"'+
-              (isSvc?' readonly style="color:#2d6a2d;font-weight:700;background:#f0f9f0;border-color:var(--grn-bd);width:100%;text-align:right;padding:9px 32px 9px 10px;border-radius:9px;font-size:.88rem;outline:none;font-variant-numeric:tabular-nums"':' style="width:100%;text-align:right;padding:9px 32px 9px 10px;border:2px solid var(--gold-bd);border-radius:9px;font-size:.92rem;font-weight:800;color:var(--gold-h);outline:none;background:#fff;font-variant-numeric:tabular-nums"')+
+          /* 합계 - 계산 결과 (읽기 전용 느낌, 작게) */
+          '<div style="display:flex;align-items:center;justify-content:space-between;background:'+(isSvc?'var(--grn-lt)':'var(--gold-lt)')+';border:1px solid '+(isSvc?'var(--grn-bd)':'var(--gold-bd)')+';border-radius:8px;padding:8px 12px">'+
+            '<span style="font-size:.72rem;color:'+(isSvc?'var(--grn)':'var(--ash)')+';font-weight:600">'+(isSvc?'✅ 서비스':'부가세(10%) 포함 합계')+'</span>'+
+            '<div style="display:flex;align-items:center;gap:6px">'+
+              '<span class="vat-disp" data-proc="'+pKey+'" style="font-size:.7rem;color:#2558a8;font-weight:600"></span>'+
+              '<input type="text" class="money-ipt" data-proc="'+pKey+'" placeholder="-" value="'+(v&&!isSvc?nFmt(v):'')+'\" inputmode="numeric"'+
+              (isSvc?' readonly style="border:none;background:transparent;color:#2d6a2d;font-weight:800;font-size:.95rem;width:90px;text-align:right;outline:none;font-variant-numeric:tabular-nums;padding:0"':' style="border:none;background:transparent;font-weight:800;font-size:.95rem;color:var(--gold-h);width:100px;text-align:right;outline:none;font-variant-numeric:tabular-nums;padding:0"')+
               ' oninput="onAmtInput(this)" onblur="onAmtBlur(this)">'+
-              '<span style="position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:.68rem;color:var(--ash2)">원</span>'+
-            '</div>'+
-            /* 부가세 표시 */
-            '<div style="text-align:right;margin-top:3px;min-height:14px">'+
-              '<span class="vat-disp" data-proc="'+pKey+'" style="font-size:.68rem;color:#2558a8;font-weight:600"></span>'+
+              '<span style="font-size:.72rem;color:var(--ash2)">원</span>'+
             '</div>'+
           '</div>'+
         '</div>'+
@@ -2346,7 +2384,7 @@ function onBaseInput(el){
   if(base>0){
     var vat=Math.round(base*0.1);
     var total=base+vat;
-    if(vatEl)vatEl.textContent='부가세 +'+nFmt(vat)+'원';
+    if(vatEl)vatEl.textContent='+'+nFmt(vat)+'원 →';
     if(amtEl){amtEl.value=nFmt(total);procAmts[name]=total;}
   } else {
     if(vatEl)vatEl.textContent='';
